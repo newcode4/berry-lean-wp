@@ -1,2 +1,0 @@
-# berry-lean-wp
-css
