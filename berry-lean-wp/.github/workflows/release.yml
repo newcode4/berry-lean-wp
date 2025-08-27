@@ -2,7 +2,10 @@ name: Build & Release
 
 on:
   push:
-    tags: [ 'v*' ]   # v로 시작하는 태그 푸시될 때 실행됨
+    tags: [ 'v*' ]  # v로 시작하는 태그 푸시 시
+
+permissions:
+  contents: write   # 릴리즈에 ZIP 첨부 권한
 
 jobs:
   build:
@@ -12,11 +15,13 @@ jobs:
 
       - name: Make plugin zip (wrap in folder)
         run: |
+          set -e
           PLUG=berry-lean
           mkdir -p build/$PLUG
-          shopt -s extglob
-          cp -R !(build|.git|.github) build/$PLUG
-          cd build && zip -r ${PLUG}.zip $PLUG
+          # 폴더가 아니라 '내용물'을 복사 (중첩 폴더 방지)
+          cp -R berry-lean/. build/$PLUG
+          cd build
+          zip -r ${PLUG}.zip $PLUG
 
       - name: Attach zip to Release
         uses: softprops/action-gh-release@v2
