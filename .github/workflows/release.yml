@@ -1,8 +1,11 @@
-name: Auto Release
+name: Build & Release
 
 on:
   push:
-    branches: [ "main" ]   # main에 push 될 때마다 실행
+    tags: [ 'v*' ]  # v로 시작하는 태그 푸시 시
+
+permissions:
+  contents: write   # 릴리즈에 ZIP 첨부 권한
 
 jobs:
   build:
@@ -10,26 +13,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 1) 버전 자동 증가 (ex: patch 버전 +1)
-      - name: Bump version and push tag
-        id: tag_version
-        uses: anothrNick/github-tag-action@1.67.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEFAULT_BUMP: patch
-          WITH_V: true   # 태그 앞에 v 붙임 (v1.2.3 형태)
-
-      # 2) 플러그인 ZIP 묶기
-      - name: Make plugin zip
+      - name: Make plugin zip (wrap in folder)
         run: |
+          set -e
           PLUG=berry-lean
           mkdir -p build/$PLUG
-          cp -R berry-lean build/$PLUG
-          cd build && zip -r ${PLUG}.zip $PLUG
+          # 폴더가 아니라 '내용물'을 복사 (중첩 폴더 방지)
+          cp -R berry-lean/. build/$PLUG
+          cd build
+          zip -r ${PLUG}.zip $PLUG
 
-      # 3) 릴리즈 생성 + zip 업로드
-      - name: Create Release
+      - name: Attach zip to Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.tag_version.outputs.new_tag }}
           files: build/berry-lean.zip
