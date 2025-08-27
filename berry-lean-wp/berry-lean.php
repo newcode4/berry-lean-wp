@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Berry Lean Utilities
- * Version: 1.1.5
+ * Version: 1.1.6
  * Description: 초경량 공통 유틸 CSS(enqueue) + 사이트 변수/브랜드 
  * Author: Berrywalk
  * Requires PHP: 7.4
