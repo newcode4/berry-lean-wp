@@ -15,20 +15,14 @@
 require __DIR__ . '/plugin-update-checker/plugin-update-checker.php';
 use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 
-/**
- * 공개 레포면 토큰 불필요.
- * private 레포면 WP-Config에 define('BERRY_UPDATER_TOKEN','ghp_xxx'); 추가하고 아래 setAuthentication 사용
- */
+
 $updateChecker = PucFactory::buildUpdateChecker(
-  'https://github.com/newcode4/berry-lean-wp', // <-- 플러그인 전용 레포 URL
+  'https://github.com/newcode4/berry-lean-wp', // 네 공개 레포 URL
   __FILE__,
-  'berry-lean' // slug
+  'berry-lean'                                   // slug
 );
 $updateChecker->setBranch('main');
-// private 레포일 때만 사용
-if (defined('BERRY_UPDATER_TOKEN') && BERRY_UPDATER_TOKEN) {
-  $updateChecker->setAuthentication(BERRY_UPDATER_TOKEN);
-}
+$updateChecker->getVcsApi()->enableReleaseAssets();
 
 // ===============================
 // 1) 공통 CSS 로드
