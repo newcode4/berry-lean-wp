@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 베리워크 린 유틸 (Berry Lean Utilities)
  * Description: 전역 CSS 변수(:root) + SEO 메타 + 탭 UI
- * Version: 1.3.0
+ * Version: 1.3.1
  * Author: Berrywalk
  * Requires PHP: 7.4
  * Requires at least: 6.0
