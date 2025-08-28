@@ -1,0 +1,10 @@
+.berry-lean .bl-tabs{ margin-top:16px; }
+.berry-lean .bl-tabnav{ display:flex; gap:8px; margin-bottom:12px; }
+.berry-lean .bl-tabnav a{
+  padding:6px 12px; border:1px solid #ccd0d4; border-radius:6px; text-decoration:none;
+  background:#f6f7f7; color:#1d2327;
+}
+.berry-lean .bl-tabnav a.active{ background:#1d2327; color:#fff; }
+.berry-lean .bl-tabpanel{ display:none; }
+.berry-lean .bl-tabpanel.active{ display:block; }
+.bl-row{ display:block; margin:4px 0; }
