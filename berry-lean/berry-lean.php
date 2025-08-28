@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: 베리워크 린 유틸
- * Version: 1.2.2
+ * Version: 1.2.3
  * Description: 초경량 공통 유틸 CSS(enqueue) + 사이트 변수/브랜드 
  * Author: Berrywalk
  * Requires PHP: 7.4
@@ -23,6 +23,9 @@ $updateChecker = PucFactory::buildUpdateChecker(
 );
 $updateChecker->setBranch('main');
 $updateChecker->getVcsApi()->enableReleaseAssets();
+
+register_setting('berry_lean', 'berry_snippets', ['sanitize_callback'=>'array_map']);
+
 
 // ===============================
 // 1) 공통 CSS 로드
@@ -216,4 +219,55 @@ add_action('admin_menu', function () {
       <?php
     }
   );
+});
+
+
+// ===============================
+// 관리자 메뉴: 체크박스 세팅
+// ===============================
+
+add_settings_field('berry_snippets', '공통 스니펫', function(){
+  $snippets = get_option('berry_snippets', []);
+  $items = [
+    'metform'  => 'Metform 글로벌 스타일',
+    'navfix'   => '메뉴 꿀렁 방지',
+    'btnGroup' => '그룹버튼 현재 강조',
+    'hoverBtn' => 'Hover 버튼 아이콘 교체',
+  ];
+  foreach($items as $key=>$label){
+    $checked = in_array($key,$snippets) ? 'checked' : '';
+    echo "<label><input type='checkbox' name='berry_snippets[]' value='{$key}' {$checked}/> {$label}</label><br>";
+  }
+}, 'berry-lean','berry_lean_section_brand');
+
+
+// ===============================
+// 관리자 메뉴: 체크박스 출력
+// ===============================
+
+add_action('wp_enqueue_scripts', function(){
+  $snippets = get_option('berry_snippets',[]);
+  if(in_array('metform',$snippets)){
+    wp_add_inline_style('berry-lean', '.mf-input{border-radius:0!important} ...');
+  }
+  if(in_array('navfix',$snippets)){
+    wp_add_inline_style('berry-lean', '.elementor-nav-menu .menu-item-has-children > a{position:relative;padding-right:18px;} ...');
+  }
+  if(in_array('btnGroup',$snippets)){
+    wp_add_inline_script('berry-lean', "document.addEventListener('DOMContentLoaded',function(){...});");
+  }
+},30);
+
+
+// ===============================
+// 관리자 메뉴: SEO/메타 관리 기능
+// ===============================
+add_action('wp_head', function(){
+  $naver = get_option('berry_naver_verify');
+  if($naver) echo "<meta name='naver-site-verification' content='".esc_attr($naver)."' />\n";
+  $google = get_option('berry_google_verify');
+  if($google) echo "<meta name='google-site-verification' content='".esc_attr($google)."' />\n";
+  $desc = get_option('berry_meta_description');
+  if($desc) echo "<meta name='description' content='".esc_attr($desc)."' />\n";
+  // OG도 비슷하게
 });
