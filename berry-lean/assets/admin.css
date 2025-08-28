@@ -1,16 +1,17 @@
-/* 탭 네비게이션 */
+/* 탭 */
 .berry-lean .bl-tabnav{ display:flex; gap:8px; margin:14px 0; }
-.berry-lean .bl-tabnav button{
-  padding:8px 14px; border:1px solid #ccd0d4; border-radius:8px; background:#f6f7f7; cursor:pointer;
-}
+.berry-lean .bl-tabnav button{ padding:8px 14px; border:1px solid #ccd0d4; border-radius:8px; background:#f6f7f7; cursor:pointer; }
 .berry-lean .bl-tabnav button.active{ background:#1d2327; color:#fff; }
-
-/* 탭 패널 */
 .berry-lean .bl-tabpanel{ display:none; }
 .berry-lean .bl-tabpanel.active{ display:block; }
 
-/* 간격/레이아웃 */
+/* 그리드/카드 레이아웃 */
+.form-table td{ padding:8px 10px; }
 .bl-row{ display:block; margin:4px 0; }
-.bl-stack{ display:grid; gap:10px; }
-.bl-grid-3{ display:grid; grid-template-columns: 160px 140px 120px; gap:10px; align-items:center; }
-.form-table td{ padding:10px 10px; }
+.bl-stack{ display:grid; gap:14px; }
+.bl-grid-2{ display:grid; grid-template-columns: 160px 1fr; gap:10px; align-items:center; }
+.bl-grid-6{ display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; }
+.bl-break{ height:8px; }
+.bl-card{ padding:12px; border:1px solid #e2e8f0; border-radius:10px; background:#fff; }
+.bl-card-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.bl-conditional{ display:none; }

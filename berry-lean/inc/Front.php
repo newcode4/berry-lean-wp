@@ -5,7 +5,8 @@ class Front {
   public static function init(){
     add_action('wp_enqueue_scripts', [__CLASS__, 'enqueue_base'], 9);
     add_action('wp_enqueue_scripts', [__CLASS__, 'inject_root_vars'], 20);
-    add_action('wp_enqueue_scripts', [__CLASS__, 'apply_utilities'], 25); // 폰트/컨테이너 유틸
+    add_action('wp_enqueue_scripts', [__CLASS__, 'apply_fonts'], 24);
+    add_action('wp_enqueue_scripts', [__CLASS__, 'apply_containers'], 25);
     add_action('wp_enqueue_scripts', [__CLASS__, 'apply_snippets'], 30);
   }
 
@@ -43,54 +44,65 @@ class Front {
     if ($extra!==''){ $extra = wp_kses($extra,[]); wp_add_inline_style(BERRY_LEAN_STYLE,$extra); }
   }
 
-  /** 폰트/컨테이너 유틸 클래스 CSS 생성 */
-  public static function apply_utilities(){
-    // 폰트 유틸
-    if ((int) get_option('berry_util_fonts_enable',0) === 1){
-      $base = get_option('berry_font_base_size','16px');
-      $lh   = get_option('berry_font_base_lh','1.6');
+  /** 폰트 유틸 – 항상 생성 */
+  public static function apply_fonts(){
+    $base = get_option('berry_font_base_size','16px');
+    $lh   = get_option('berry_font_base_lh','1.6');
+    $trk_kr = get_option('berry_font_track_kr','-0.04em');
+    $trk_en = get_option('berry_font_track_en','0em');
 
-      $css = <<<CSS
+    $css = <<<CSS
 /* Font utilities */
 .font-sans{ font-family: var(--font-sans); }
 .font-title{ font-family: var(--font-title); }
-.text-body{ font-size: {$base}; line-height: {$lh}; color: var(--fg); }
+.text-body{ font-size: {$base}; line-height: {$lh}; color: var(--fg); letter-spacing: {$trk_kr}; }
 .text-muted{ color: var(--muted); }
-.h1{ font-family: var(--font-title); font-size: calc({$base} * 2.0); line-height: 1.25; }
-.h2{ font-family: var(--font-title); font-size: calc({$base} * 1.6); line-height: 1.28; }
-.h3{ font-family: var(--font-title); font-size: calc({$base} * 1.3); line-height: 1.32; }
-.h4{ font-family: var(--font-title); font-size: calc({$base} * 1.15); line-height: 1.35; }
+.tracking-kr{ letter-spacing: {$trk_kr}; }
+.tracking-en{ letter-spacing: {$trk_en}; }
+.h1{ font-family: var(--font-title); font-size: calc({$base} * 2.0); line-height: 1.25; letter-spacing: {$trk_kr}; }
+.h2{ font-family: var(--font-title); font-size: calc({$base} * 1.6); line-height: 1.28; letter-spacing: {$trk_kr}; }
+.h3{ font-family: var(--font-title); font-size: calc({$base} * 1.3); line-height: 1.32; letter-spacing: {$trk_kr}; }
+.h4{ font-family: var(--font-title); font-size: calc({$base} * 1.15); line-height: 1.35; letter-spacing: {$trk_kr}; }
 CSS;
-      wp_add_inline_style(BERRY_LEAN_STYLE, $css);
-    }
+    wp_add_inline_style(BERRY_LEAN_STYLE, $css);
+  }
 
-    // 컨테이너 유틸
-    if ((int) get_option('berry_util_container_enable',0) === 1){
-      $px = function($id,$def){ $v = trim((string) get_option($id,$def)); return $v===''?$def:$v; };
-      $py_d = $px('berry_hdr_pad_y_desktop','40px'); $px_d = $px('berry_hdr_pad_x_desktop','16px'); $gap_d=$px('berry_hdr_gap_desktop','24px');
-      $py_t = $px('berry_hdr_pad_y_tablet','32px');  $px_t = $px('berry_hdr_pad_x_tablet','16px'); $gap_t=$px('berry_hdr_gap_tablet','20px');
-      $py_m = $px('berry_hdr_pad_y_mobile','24px');  $px_m = $px('berry_hdr_pad_x_mobile','12px'); $gap_m=$px('berry_hdr_gap_mobile','16px');
-      $bdt  = (int) get_option('berry_hdr_border_top',0) === 1 ? "border-top:1px solid var(--border);" : "";
-      $bdb  = (int) get_option('berry_hdr_border_bottom',0) === 1 ? "border-bottom:1px solid var(--border);" : "";
+  /** 컨테이너 유틸 – preset 3종 + custom 전부 CSS 생성 */
+  public static function apply_containers(){
+    $CONF = get_option('berry_containers');
+    if (!$CONF) $CONF = \BerryLean\Admin::default_containers();
 
-      $css = <<<CSS
-/* Header container utility */
-.header_container{
+    $mk = function($class, $cfg){
+      $py = $cfg['py']; $px=$cfg['px']; $gap=$cfg['gap'];
+      $bt = !empty($cfg['bt']) ? "border-top:1px solid var(--border);" : "";
+      $bb = !empty($cfg['bb']) ? "border-bottom:1px solid var(--border);" : "";
+      $class = preg_replace('~[^a-zA-Z0-9\-_]~','',$class);
+      return <<<CSS
+.{$class}{
   max-width: var(--container);
   margin-inline:auto;
-  display:flex; align-items:center; gap: {$gap_d};
-  padding: {$py_d} {$px_d};
-  {$bdt} {$bdb}
+  display:flex; align-items:center;
+  gap: {$gap['desktop']};
+  padding: {$py['desktop']} {$px['desktop']};
+  {$bt} {$bb}
 }
 @media (max-width: 1024px){
-  .header_container{ gap: {$gap_t}; padding: {$py_t} {$px_t}; }
+  .{$class}{ gap: {$gap['tablet']}; padding: {$py['tablet']} {$px['tablet']}; }
 }
 @media (max-width: 767px){
-  .header_container{ gap: {$gap_m}; padding: {$py_m} {$px_m}; }
+  .{$class}{ gap: {$gap['mobile']}; padding: {$py['mobile']} {$px['mobile']}; }
 }
 CSS;
-      wp_add_inline_style(BERRY_LEAN_STYLE, $css);
+    };
+
+    $css = '';
+    foreach (['header','body','title'] as $k){
+      if (!empty($CONF[$k])) $css .= $mk($CONF[$k]['class'], $CONF[$k]);
     }
+    if (!empty($CONF['custom']) && is_array($CONF['custom'])){
+      foreach ($CONF['custom'] as $c) $css .= $mk($c['class'],$c);
+    }
+    if ($css) wp_add_inline_style(BERRY_LEAN_STYLE, $css);
   }
 
   public static function apply_snippets(){
